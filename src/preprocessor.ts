@@ -5,6 +5,7 @@ import { ImportDeclaration, isTSModuleDeclaration } from '@babel/types';
 import { getCodeFromAst } from './utils/get-code-from-ast';
 import { getSortedNodes } from './utils/get-sorted-nodes';
 import { getParserPlugins } from './utils/get-parser-plugins';
+import AstPath from './utils/ast-path';
 import { PrettierOptions } from './types';
 
 export function preprocessor(code: string, options: PrettierOptions) {
@@ -27,14 +28,43 @@ export function preprocessor(code: string, options: PrettierOptions) {
     const ast = babelParser(code, parserOptions);
     const interpreter = ast.program.interpreter;
 
-    traverse(ast, {
+    const printer: any = (options as any).printer;
+    const prettierInternalAst = new AstPath(printer.preprocess(ast, options));
+
+    traverse(prettierInternalAst.getValue(), {
         ImportDeclaration(path: NodePath<ImportDeclaration>) {
+            const isPrettierIgnored = path.node.leadingComments?.some(
+                (comment) => {
+                    if (comment.value.includes('prettier-ignore')) {
+                        const prevPath: NodePath = (path as any).getPrevSibling();
+                        if (
+                            !prevPath.node &&
+                            prevPath.node.trailingComments !== null
+                        ) {
+                            return true;
+                        }
+
+                        if (
+                            prevPath.node.trailingComments.find(
+                                (sameComment) =>
+                                    sameComment.value === comment.value,
+                            )
+                        ) {
+                            console.log('previous node');
+                        }
+                        // great job that's a comment, does it belong to the previous one?
+                        return true;
+                    }
+                },
+            );
+
             const tsModuleParent = path.findParent((p) =>
                 isTSModuleDeclaration(p),
             );
-            if (!tsModuleParent) {
-                importNodes.push(path.node);
-            }
+
+            if (tsModuleParent || isPrettierIgnored) return;
+
+            importNodes.push(path.node);
         },
     });
 

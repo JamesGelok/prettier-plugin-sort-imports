@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`prettier-ignore.ts - typescript-verify: prettier-ignore.ts 1`] = `
+// prettier-ignore
+import './commands2'
+
+import b from './b'
+
+// prettier-ignore
+import './commands1'
+
+import a from './a'
+
+function add(a:number,b:number) {
+    return a + b;
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+import a from "./a";
+import b from "./b";
+
+// prettier-ignore
+import './commands2'
+
+// prettier-ignore
+import './commands1'
+
+function add(a: number, b: number) {
+    return a + b;
+}
+
+`;
+
+exports[`prettier-ignore-same-line.ts - typescript-verify: prettier-ignore-same-line.ts 1`] = `
+
+import './commands2' // prettier-ignore
+
+import './commands1' // prettier-ignore
+
+import b from './b'
+import a from './a'
+
+function add(a:number,b:number) {
+    return a + b;
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+import a from "./a";
+import "./commands2";
+
+// prettier-ignore
+
+import './commands1' // prettier-ignore
+
+import b from "./b";
+
+function add(a: number, b: number) {
+    return a + b;
+}
+
+`;
